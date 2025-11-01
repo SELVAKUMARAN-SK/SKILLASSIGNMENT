@@ -1,7 +1,8 @@
 #SKILL ASSIGNMENT-1
 
 PROGRAM:
-Write an assembly language program in 8051 to reverse the elements of an array and store the reversed array in another memory location.
+
+ Write an assembly language program in 8051 to generate a 500 µs delay using Timer 0 in Mode 2 and toggle Port 1.3.
 
 APPARATUS REQUIRED:
 
@@ -11,40 +12,33 @@ PROGRAM:
 ```
 ORG 0000H
 
-; initialize array elements
-MOV 30H, #11H
-MOV 31H, #22H
-MOV 32H, #33H
-MOV 33H, #44H
-MOV 34H, #55H
+START:  MOV TMOD, #02H      ; Timer0 in Mode2 (8-bit auto-reload)
+        MOV TH0, #06H       ; Reload = 06H -> 256-06H = 250 ticks per overflow
+        MOV TL0, #06H       ; initial TL
+        CLR TF0             ; clear Timer0 overflow flag
+        SETB TR0            ; start Timer0
 
-MOV R0, #30H     ; source start address
-MOV R1, #40H     ; destination start address
-MOV R2, #05H     ; total 5 elements
+MAIN:   MOV R5, #00         ; overflow counter = 0
 
-; point R0 to last element (30H + 4)
-MOV A, R0
-ADD A, #04H
-MOV R0, A
+WAIT1:  JNB TF0, WAIT1      ; wait until TF0 = 1 (overflow)
+        CLR TF0             ; clear TF0
+        INC R5
 
-BACK: MOV A, @R0
-      MOV @R1, A
-      DEC R0
-      INC R1
-      DJNZ R2, BACK
+        CJNE R5, #02, WAIT1 ; need 2 overflows for 500 µs (2 * 250 = 500)
+        MOV R5, #00
 
-HERE: SJMP HERE   ; stop program
+        CPL P1.3            ; toggle P1.3
+        SJMP MAIN
 
-END
+        END
+     
 ```
 INPUT:
-![WhatsApp Image 2025-10-30 at 2 45 05 PM](https://github.com/user-attachments/assets/b5d5bcac-8fab-4035-ada6-0e448e0ec9ac)
+![WhatsApp Image 2025-10-30 at 2 51 50 PM](https://github.com/user-attachments/assets/daa89261-acbe-455f-b126-73da8ec6c016)
 
 OUTPUT:
-![WhatsApp Image 2025-10-30 at 2 51 38 PM](https://github.com/user-attachments/assets/b97f509f-4377-4e48-a297-632f2c26520a)
-
-
+![WhatsApp Image 2025-10-30 at 2 51 50 PM](https://github.com/user-attachments/assets/036cf3e1-5d60-42c5-b601-f36f3d90156d)
 
 RESULT:
 
-Thus the  language program in 8051 to reverse the elements of an array and store the reversed array in another memory location.
+Thus an assembly language program in 8051 to generate a 500 µs delay using Timer 0 in Mode 2 and toggle Port 1.3.
